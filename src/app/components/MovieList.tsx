@@ -13,7 +13,12 @@ type Movie = {
   overview: string;
 };
 
-export default function MovieList() {
+
+type MovieListProps = {
+  searchQuery?: string;
+};
+
+export default function MovieList({ searchQuery }: MovieListProps) {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -23,8 +28,13 @@ export default function MovieList() {
     async function fetchMovies() {
       setLoading(true);
       try {
-        // Use serverless proxy API
-        const res = await fetch(`/api/tmdb?endpoint=movie/popular&page=${page}`);
+        let url = "";
+        if (searchQuery && searchQuery.length > 0) {
+          url = `/api/tmdb?endpoint=search/movie&query=${encodeURIComponent(searchQuery)}&page=${page}`;
+        } else {
+          url = `/api/tmdb?endpoint=movie/popular&page=${page}`;
+        }
+        const res = await fetch(url);
         const data = await res.json();
         setMovies(data.results);
         setTotalPages(data.total_pages);
@@ -34,7 +44,12 @@ export default function MovieList() {
       setLoading(false);
     }
     fetchMovies();
-  }, [page]);
+  }, [page, searchQuery]);
+
+  // Reset page to 1 when searchQuery changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
 
   return (
     <Suspense fallback={<LoadingSkeleton />}>
@@ -51,6 +66,7 @@ export default function MovieList() {
                 year={movie.release_date ? movie.release_date.slice(0, 4) : ""}
                 rating={movie.vote_average}
                 description={movie.overview}
+                id={movie.id}
               />
             ))
           )}

@@ -1,6 +1,10 @@
 import Image from "next/image";
 // MovieCard component skeleton
+
+import { useRouter } from "next/navigation";
+
 type MovieCardProps = {
+  id: number;
   posterUrl?: string;
   title: string;
   year: string;
@@ -8,15 +12,27 @@ type MovieCardProps = {
   description: string;
 };
 
-export default function MovieCard({ posterUrl, title, year, rating, description }: MovieCardProps) {
+
+export default function MovieCard({ id, posterUrl, title, year, rating, description }: MovieCardProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/movies/${id}`);
+  };
+
   return (
-    <div className="bg-[#23213A] rounded-xl shadow-lg overflow-hidden flex flex-col w-56 min-h-[400px] transition-transform hover:scale-105">
+    <div
+      className="bg-[#23213A] rounded-xl shadow-lg overflow-hidden flex flex-col w-56 min-h-[400px] transition-transform hover:scale-105 cursor-pointer"
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+    >
       <div className="h-80 w-full bg-[#18122B] flex items-center justify-center">
-          {posterUrl ? (
-            <Image src={posterUrl} alt={title} width={224} height={320} className="object-cover w-full h-full" />
-          ) : (
-            <div className="text-gray-500">No Image</div>
-          )}
+        {posterUrl ? (
+          <Image src={posterUrl} alt={title} width={224} height={320} className="object-cover w-full h-full" />
+        ) : (
+          <div className="text-gray-500">No Image</div>
+        )}
       </div>
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-1">
@@ -26,9 +42,9 @@ export default function MovieCard({ posterUrl, title, year, rating, description 
             {rating}
           </span>
         </div>
-            <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
-              {year}
-            </div>
+        <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
+          {year}
+        </div>
         <p className="text-gray-300 text-sm line-clamp-3">{description}</p>
       </div>
     </div>
