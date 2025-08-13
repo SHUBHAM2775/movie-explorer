@@ -18,7 +18,7 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
 
   const handleClick = () => {
     router.push(`/movies/${id}`);
-  };
+  }
 
   return (
     <div
