@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 
 import { useState } from "react";
-import MovieList from "./components/MovieList";
+// ...existing code...
 
 const popularMovies = [
   {
@@ -80,7 +81,8 @@ export default function Home() {
           </p>
           <div className="flex gap-4">
             <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded transition-all shadow focus:outline-none cursor-pointer">Watch Trailer</button>
-            <a href="/movies/1" className="bg-black/80 hover:bg-black text-white font-bold px-6 py-2 rounded border border-gray-400 transition-all shadow focus:outline-none cursor-pointer">More Info</a>
+            {/* Use Next.js Link for navigation */}
+            <Link href="/movies/1" className="bg-black/80 hover:bg-black text-white font-bold px-6 py-2 rounded border border-gray-400 transition-all shadow focus:outline-none cursor-pointer">More Info</Link>
           </div>
         </div>
       </section>
@@ -101,9 +103,8 @@ export default function Home() {
             Trending
           </button>
         </div>
-        <a href="/auth/login" className="border border-yellow-400 text-yellow-400 px-4 py-2 rounded hover:bg-yellow-400 hover:text-black transition-all cursor-pointer">
-          Sign in to access favorites
-        </a>
+  {/* Login button removed from movie list area. Place in navbar or auth modal if needed. */}
+  {/* Removed leftover closing tag from previous <a> to <Link> conversion */}
       </div>
 
       {/* Movie Cards Row */}

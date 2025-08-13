@@ -1,3 +1,4 @@
+import Link from "next/link";
 
 
 import React, { useState } from "react";
@@ -129,9 +130,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ mode, onClose, onAuth, switchMode
                 Create Account
               </button>
               <div style={{ marginTop: 8 }}>
-                <a href="/auth/forgot" className={styles.switchButton} style={{ color: '#FFD600', fontSize: '0.95em' }}>
+                {/* Use Next.js Link for navigation */}
+                <Link href="/auth/forgot" className={styles.switchButton} style={{ color: '#FFD600', fontSize: '0.95em' }}>Forgot Password?</Link>
                   Forgot Password?
-                </a>
+                {/* Removed leftover closing tag from previous <a> to <Link> conversion */}
               </div>
             </>
           ) : (
