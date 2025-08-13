@@ -1,0 +1,58 @@
+Problem Statement Deadline:19-03-2025(EOD)
+Movie Explorer App
+
+Objective:-
+Build a Movie Explorer App using Next.js, where users can browse movies, search for specific ones, and view detailed information.
+
+Requirements:-
+1. Project Setup
+● Use Next.js 14 with the App Router.
+● Use TypeScript for type safety.
+● Use Tailwind CSS for styling.
+
+2. Authentication
+● Implement Login & Register functionality using NextAuth.js or JWT-based authentication.
+● Store user authentication state in localStorage or cookies.
+● Allow only logged-in users to access the main features.
+
+3. Movie Listing Page
+● Fetch and display a list of movies from TMDB API (https://api.themoviedb.org/3).
+● Show poster, title, and rating for each movie.
+● Implement infinite scrolling or pagination.
+
+4. Search Functionality
+● Add a search bar that allows users to search for movies dynamically.
+● Fetch search results from the API and display them.
+
+5. Movie Detail Page
+● Clicking on a movie should navigate to a detailed page (/movie/[id]).
+● Show the title, description, rating, release date, and other details.
+
+6. Favorite Movies Feature
+● Allow users to add/remove movies to/from favorites.
+● Store the favorite movies in localStorage.
+● Add a "My Favorites" page where users can view saved movies.
+
+7. UI & Performance Considerations
+● Ensure the UI is responsive.
+
+● Use Next.js Image Optimization (next/image).
+● Ensure good loading performance (use loading skeletons).
+
+Bonus (Optional but Appreciated)
+● Implement server-side rendering (SSR) or static site generation (SSG) where applicable.
+● Add dark mode support using Tailwind's dark mode.
+● Deploy the project on Vercel and share the live link.
+
+Submission Guidelines
+● Submit the GitHub repository link.
+● Ensure the project is properly structured and well-commented.
+● Deploy on Vercel and provide the live demo link.
+
+Evaluation Criteria
+● Code Quality & Structure
+● Authentication Implementation
+● API Integration & Data Handling
+● State Management (localStorage, session, or Redux/Context API if used)
+● UI Design & Responsiveness
+● Bonus Features (if implemented)
