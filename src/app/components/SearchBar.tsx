@@ -1,6 +1,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 type SearchBarProps = {
   onSearch: (query: string) => void;
@@ -8,7 +9,15 @@ type SearchBarProps = {
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  type Movie = {
+    id: number;
+    poster_path: string | null;
+    title: string;
+    release_date: string;
+    vote_average: number;
+    overview: string;
+  };
+  const [results, setResults] = useState<Movie[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -20,10 +29,10 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       return;
     }
     try {
-  const res = await fetch(`/api/tmdb?endpoint=search/movie&query=${encodeURIComponent(search)}`);
+      const res = await fetch(`/api/tmdb?endpoint=search/movie&query=${encodeURIComponent(search)}`);
       const data = await res.json();
       setResults(data.results || []);
-    } catch (err) {
+    } catch {
       setResults([]);
     }
   };
@@ -45,7 +54,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     onSearch(query.trim());
   };
 
-  const handleSelect = (movie: any) => {
+  const handleSelect = (movie: Movie) => {
     setShowDropdown(false);
     setQuery("");
     router.push(`/movies/${movie.id}`);
@@ -78,7 +87,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
               onClick={() => handleSelect(movie)}
             >
               {movie.poster_path && (
-                <img src={`https://image.tmdb.org/t/p/w45${movie.poster_path}`} alt={movie.title} className="w-8 h-12 object-cover rounded" />
+                <Image src={`https://image.tmdb.org/t/p/w45${movie.poster_path}`} alt={movie.title} width={32} height={48} className="w-8 h-12 object-cover rounded" />
               )}
               <span>{movie.title} {movie.release_date ? `(${movie.release_date.slice(0,4)})` : ""}</span>
             </li>

@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import EditProfileModal from "./EditProfileModal";
+import SearchBar from "./SearchBar";
+import { useSearch } from "../context/SearchContext";
 
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
   const [dropdown, setDropdown] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const { setSearchQuery } = useSearch();
 
   return (
     <nav className="w-full flex items-center justify-between px-8 py-4 bg-gradient-to-r from-[#18122B] to-[#1E1E2F] shadow-md">
@@ -32,11 +35,9 @@ export default function Navbar() {
         </Link>
       </div>
       <div className="flex-1 flex justify-center">
-        <input
-          type="text"
-          placeholder="Search movies..."
-          className="w-full max-w-md px-4 py-2 rounded bg-[#23213A] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer"
-        />
+        <div className="w-full max-w-xl">
+          <SearchBar onSearch={setSearchQuery} />
+        </div>
       </div>
       <div className="flex items-center gap-4 relative">
         {loading ? null : user ? (

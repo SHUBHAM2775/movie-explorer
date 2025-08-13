@@ -1,6 +1,4 @@
 import Image from "next/image";
-// MovieCard component skeleton
-
 import { useRouter } from "next/navigation";
 
 type MovieCardProps = {
@@ -12,31 +10,51 @@ type MovieCardProps = {
   description: string;
 };
 
-
 export default function MovieCard({ id, posterUrl, title, year, rating, description }: MovieCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
     router.push(`/movies/${id}`);
-  }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      handleClick();
+    }
+  };
 
   return (
-    <div
-      className="bg-[#23213A] rounded-xl shadow-lg overflow-hidden flex flex-col w-56 min-h-[400px] transition-transform hover:scale-105 cursor-pointer"
-      onClick={handleClick}
-      role="button"
-      tabIndex={0}
-    >
-      <div className="h-80 w-full bg-[#18122B] flex items-center justify-center">
+    <div className="bg-[#23213A] rounded-xl shadow-lg overflow-hidden flex flex-col w-56 min-h-[400px] transition-transform hover:scale-105">
+      <div
+        className="h-80 w-full bg-[#18122B] flex items-center justify-center"
+      >
         {posterUrl ? (
-          <Image src={posterUrl} alt={title} width={224} height={320} className="object-cover w-full h-full" />
+          <span
+            className="w-full h-full cursor-pointer"
+            onClick={handleClick}
+            onKeyDown={handleKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-label={`View details for ${title}`}
+          >
+            <Image src={posterUrl} alt={title} width={224} height={320} className="object-cover w-full h-full" />
+          </span>
         ) : (
           <div className="w-full h-80 bg-gray-700 flex items-center justify-center text-gray-400 rounded-t-xl">No Image</div>
         )}
       </div>
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="text-lg font-bold text-white truncate">{title}</h3>
+          <span
+            className="text-lg font-bold text-white truncate cursor-pointer hover:underline"
+            onClick={handleClick}
+            onKeyDown={handleKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-label={`View details for ${title}`}
+          >
+            {title}
+          </span>
           <span className="flex items-center gap-1 text-yellow-400 font-semibold text-sm">
             <svg width="16" height="16" fill="currentColor" className="inline-block"><path d="M8 12.472l-4.472 2.35.855-4.99L1 6.763l5.014-.728L8 1.5l1.986 4.535L15 6.763l-3.383 3.07.855 4.99z"/></svg>
             {rating}
