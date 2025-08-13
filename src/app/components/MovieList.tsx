@@ -29,18 +29,10 @@ export default function MovieList({ searchQuery }: MovieListProps) {
       setError("");
       try {
         let url = "";
-  const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-        if (!apiKey) {
-          setError("TMDB API key not set.");
-          setMovies([]);
-          setTotalPages(1);
-          setLoading(false);
-          return;
-        }
         if (searchQuery && searchQuery.length > 0) {
-          url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(searchQuery)}&page=${page}&api_key=${apiKey}`;
+          url = `/api/tmdb?endpoint=search/movie&query=${encodeURIComponent(searchQuery)}&page=${page}`;
         } else {
-          url = `https://api.themoviedb.org/3/movie/popular?page=${page}&api_key=${apiKey}`;
+          url = `/api/tmdb?endpoint=movie/popular&page=${page}`;
         }
         const res = await fetch(url);
         const data = await res.json();

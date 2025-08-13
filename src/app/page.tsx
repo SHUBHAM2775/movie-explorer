@@ -47,16 +47,16 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#18122B] to-[#23213A]">
+  <div className="min-h-screen bg-gradient-to-b from-[#18122B] to-[#23213A]">
       {/* Hero Section */}
-      <section className="relative flex flex-col justify-center items-start h-[60vh] px-8 pt-12 pb-8 bg-cover bg-center" style={{backgroundImage: "url('https://image.tmdb.org/t/p/original/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg')"}}>
+  <section className="relative flex flex-col justify-center items-start h-[60vh] px-4 md:px-8 pt-8 md:pt-12 pb-6 md:pb-8 bg-cover bg-center" style={{backgroundImage: "url('https://image.tmdb.org/t/p/original/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg')"}}>
         <div className="absolute inset-0 bg-gradient-to-r from-[#18122B]/90 to-[#23213A]/60 z-0" />
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="text-5xl font-extrabold text-white mb-4 drop-shadow-lg">Avatar</h1>
-          <p className="text-lg text-gray-200 mb-6 drop-shadow">
+  <div className="relative z-10 max-w-2xl w-full">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">Avatar</h1>
+          <p className="text-base md:text-lg text-gray-200 mb-6 drop-shadow">
             In the 22nd century, a paraplegic Marine is dispatched to the moon Pandora on a unique mission, but becomes torn between following orders and protecting an alien civilization.
           </p>
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-4 w-full">
             <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded transition-all shadow focus:outline-none cursor-pointer">Watch Trailer</button>
             <button
               className="bg-black/80 hover:bg-black text-white font-bold px-6 py-2 rounded border border-gray-400 transition-all shadow focus:outline-none cursor-pointer"
@@ -70,18 +70,18 @@ export default function Home() {
 
       {/* Avatar More Info Modal */}
       {avatarModalOpen && avatarInfo && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-          <div className="bg-[#23213A] rounded-xl shadow-2xl p-8 max-w-2xl w-full relative">
-            <button className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl" onClick={() => setAvatarModalOpen(false)}>&times;</button>
-            <div className="flex gap-8">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50 px-2">
+          <div className="bg-[#23213A] rounded-xl shadow-2xl p-4 md:p-8 max-w-2xl w-full relative">
+            <button className="absolute top-2 right-2 md:top-4 md:right-4 text-gray-400 hover:text-white text-xl" onClick={() => setAvatarModalOpen(false)}>&times;</button>
+            <div className="flex flex-col md:flex-row gap-4 md:gap-8">
               {avatarInfo.poster_path ? (
-                <Image src={`https://image.tmdb.org/t/p/w300${avatarInfo.poster_path}`} alt="Avatar Poster" width={160} height={240} className="rounded-lg w-40 h-60 object-cover" />
+                <Image src={`https://image.tmdb.org/t/p/w300${avatarInfo.poster_path}`} alt="Avatar Poster" width={160} height={240} className="rounded-lg w-32 h-48 md:w-40 md:h-60 object-cover" />
               ) : (
-                <div className="w-40 h-60 bg-gray-700 flex items-center justify-center text-gray-400 rounded-lg">No Image</div>
+                <div className="w-32 h-48 md:w-40 md:h-60 bg-gray-700 flex items-center justify-center text-gray-400 rounded-lg">No Image</div>
               )}
               <div className="flex-1 flex flex-col gap-2">
-                <h2 className="text-2xl font-bold text-white mb-2">{avatarInfo.title}</h2>
-                <div className="flex gap-4 text-gray-400 text-sm mb-2">
+                <h2 className="text-xl md:text-2xl font-bold text-white mb-2">{avatarInfo.title}</h2>
+                <div className="flex flex-col md:flex-row gap-2 md:gap-4 text-gray-400 text-sm mb-2">
                   <span>Release: {avatarInfo.release_date}</span>
                   <span>Rating: <span className="text-yellow-400 font-semibold">{avatarInfo.vote_average}</span></span>
                   {avatarInfo.runtime && <span>Runtime: {avatarInfo.runtime} min</span>}
@@ -93,7 +93,7 @@ export default function Home() {
                     ))}
                   </div>
                 )}
-                <p className="text-gray-300 text-base mb-2">{avatarInfo.overview}</p>
+                <p className="text-gray-300 text-sm md:text-base mb-2">{avatarInfo.overview}</p>
                 {avatarInfo.tagline && <p className="italic text-purple-400 mb-2">{avatarInfo.tagline}</p>}
                 {avatarInfo.production_companies && (
                   <div className="text-xs text-gray-400 mb-2">Production: {avatarInfo.production_companies.map((c) => c.name).join(", ")}</div>
@@ -127,7 +127,7 @@ export default function Home() {
       )}
 
       {/* Search Bar is now in Navbar */}
-      <div className="px-8 pb-12">
+  <div className="px-2 md:px-8 pb-8 md:pb-12">
         {searchQuery ? (
           <MovieList searchQuery={searchQuery} />
         ) : (
@@ -193,32 +193,32 @@ function DefaultMovieTabs() {
 
   const movieCards = useMemo(() => (
     movies.map((movie) => (
-      <div className="w-56" key={movie.id}>
+      <div className="w-40 md:w-56" key={movie.id}>
         {movie.poster_path ? (
           <Image
             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
             alt={movie.title}
-            width={224}
-            height={320}
-            className="rounded-t-xl w-full h-80 object-cover"
+            width={160}
+            height={224}
+            className="rounded-t-xl w-full h-60 md:h-80 object-cover"
             priority={false}
           />
         ) : (
-          <div className="w-full h-80 bg-gray-700 flex items-center justify-center text-gray-400 rounded-t-xl">
+          <div className="w-full h-60 md:h-80 bg-gray-700 flex items-center justify-center text-gray-400 rounded-t-xl">
             No Image
           </div>
         )}
-        <div className="bg-[#23213A] p-4 rounded-b-xl">
+        <div className="bg-[#23213A] p-2 md:p-4 rounded-b-xl">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-white font-bold">{movie.title}</span>
-            <span className="text-yellow-400 font-semibold text-sm flex items-center gap-1">
+            <span className="text-xs md:text-base text-white font-bold">{movie.title}</span>
+            <span className="text-yellow-400 font-semibold text-xs md:text-sm flex items-center gap-1">
               <svg width='16' height='16' fill='currentColor'><path d='M8 12.472l-4.472 2.35.855-4.99L1 6.763l5.014-.728L8 1.5l1.986 4.535L15 6.763l-3.383 3.07.855 4.99z'/></svg>{movie.vote_average}
             </span>
           </div>
           <div className="text-gray-400 text-xs mb-2 flex items-center gap-2">
             <svg width='14' height='14' fill='currentColor'><path d='M7 1a6 6 0 100 12A6 6 0 007 1zm0 10.8A4.8 4.8 0 117 2.2a4.8 4.8 0 010 9.6z'/><path d='M7 4.2a.7.7 0 01.7.7v2.1a.7.7 0 01-1.4 0V4.9A.7.7 0 017 4.2zm0 5.6a.7.7 0 100-1.4.7.7 0 000 1.4z'/></svg>{movie.release_date ? movie.release_date.slice(0, 4) : ""}
           </div>
-          <p className="text-gray-300 text-sm line-clamp-3">{movie.overview}</p>
+          <p className="text-gray-300 text-xs md:text-sm line-clamp-3">{movie.overview}</p>
         </div>
       </div>
     ))
@@ -227,8 +227,8 @@ function DefaultMovieTabs() {
   return (
     <>
       {/* Tabs and Favorites Button */}
-      <div className="flex items-center justify-between mt-8 mb-4">
-        <div className="flex gap-2">
+      <div className="flex flex-col md:flex-row items-center justify-between mt-8 mb-4 gap-2">
+        <div className="flex gap-2 w-full md:w-auto">
           <button
             className={`px-4 py-2 rounded font-semibold focus:outline-none focus:ring-2 cursor-pointer ${tab === 'popular' ? 'bg-yellow-400 text-black focus:ring-yellow-400' : 'bg-transparent text-gray-300 hover:bg-[#23213A] focus:ring-purple-400'}`}
             onClick={() => setTab('popular')}
@@ -244,7 +244,7 @@ function DefaultMovieTabs() {
         </div>
       </div>
       {/* Movie Cards Row */}
-      <div className="flex flex-wrap gap-8 justify-center">
+  <div className="flex flex-wrap gap-4 md:gap-8 justify-center">
         {error ? (
           <div className="text-red-500 text-center w-full mb-8">{error}</div>
         ) : loading ? (
@@ -256,7 +256,7 @@ function DefaultMovieTabs() {
         )}
       </div>
       {/* Pagination Controls with numbered boxes */}
-      <div className="flex justify-center mt-8 gap-2 items-center">
+  <div className="flex flex-wrap justify-center mt-8 gap-2 items-center">
         <button
           className="px-3 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
           onClick={() => setPage((p) => Math.max(1, p - 1))}
