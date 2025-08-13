@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 // ...existing code...
 // ...existing code...
 
@@ -24,26 +24,44 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     async function fetchMovies() {
       setLoading(true);
+      setError("");
       try {
         let moviesData = [];
         let total = 1;
         let url = "";
+  const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+        if (!apiKey) {
+          setError("TMDB API key not set.");
+          setMovies([]);
+          setTotalPages(1);
+          setLoading(false);
+          return;
+        }
         if (tab === "popular") {
-          url = `/api/tmdb?endpoint=movie/popular&language=en-US&page=${page}`;
+          url = `https://api.themoviedb.org/3/movie/popular?language=en-US&page=${page}&api_key=${apiKey}`;
         } else {
-          url = `/api/tmdb?endpoint=trending/movie/week&page=${page}`;
+          url = `https://api.themoviedb.org/3/trending/movie/week?page=${page}&api_key=${apiKey}`;
         }
         const res = await fetch(url);
         const data = await res.json();
+        if (data.error) {
+          setError(data.error);
+          setMovies([]);
+          setTotalPages(1);
+          setLoading(false);
+          return;
+        }
         moviesData = data.results;
         total = data.total_pages || 1;
         setMovies(moviesData);
         setTotalPages(total);
-      } catch {
+      } catch (err) {
+        setError("Failed to fetch movies");
         setMovies([]);
         setTotalPages(1);
       }
@@ -51,6 +69,39 @@ export default function Home() {
     }
     fetchMovies();
   }, [tab, page]);
+
+  const movieCards = useMemo(() => (
+    movies.map((movie) => (
+      <div className="w-56" key={movie.id}>
+        {movie.poster_path ? (
+          <Image
+            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+            alt={movie.title}
+            width={224}
+            height={320}
+            className="rounded-t-xl w-full h-80 object-cover"
+            priority={false}
+          />
+        ) : (
+          <div className="w-full h-80 bg-gray-700 flex items-center justify-center text-gray-400 rounded-t-xl">
+            No Image
+          </div>
+        )}
+        <div className="bg-[#23213A] p-4 rounded-b-xl">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-white font-bold">{movie.title}</span>
+            <span className="text-yellow-400 font-semibold text-sm flex items-center gap-1">
+              <svg width='16' height='16' fill='currentColor'><path d='M8 12.472l-4.472 2.35.855-4.99L1 6.763l5.014-.728L8 1.5l1.986 4.535L15 6.763l-3.383 3.07.855 4.99z'/></svg>{movie.vote_average}
+            </span>
+          </div>
+          <div className="text-gray-400 text-xs mb-2 flex items-center gap-2">
+            <svg width='14' height='14' fill='currentColor'><path d='M7 1a6 6 0 100 12A6 6 0 007 1zm0 10.8A4.8 4.8 0 117 2.2a4.8 4.8 0 010 9.6z'/><path d='M7 4.2a.7.7 0 01.7.7v2.1a.7.7 0 01-1.4 0V4.9A.7.7 0 017 4.2zm0 5.6a.7.7 0 100-1.4.7.7 0 000 1.4z'/></svg>{movie.release_date ? movie.release_date.slice(0, 4) : ""}
+          </div>
+          <p className="text-gray-300 text-sm line-clamp-3">{movie.overview}</p>
+        </div>
+      </div>
+    ))
+  ), [movies]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#18122B] to-[#23213A]">
@@ -86,42 +137,17 @@ export default function Home() {
             Trending
           </button>
         </div>
-  {/* Login button removed from movie list area. Place in navbar or auth modal if needed. */}
-  {/* Removed leftover closing tag from previous <a> to <Link> conversion */}
       </div>
 
       {/* Movie Cards Row */}
       <div className="px-8 pb-12">
         <div className="flex flex-wrap gap-8 justify-center">
-          {loading ? (
+          {error ? (
+            <div className="text-red-500 text-center w-full mb-8">{error}</div>
+          ) : loading ? (
             <div className="text-white">Loading...</div>
-          ) : movies && movies.length > 0 ? (
-            movies.map((movie) => (
-              <div className="w-56" key={movie.id}>
-                {movie.poster_path ? (
-                  <Image
-                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    alt={movie.title}
-                    width={224}
-                    height={320}
-                    className="rounded-t-xl w-full h-80 object-cover"
-                    priority={false}
-                  />
-                ) : null}
-                <div className="bg-[#23213A] p-4 rounded-b-xl">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-white font-bold">{movie.title}</span>
-                    <span className="text-yellow-400 font-semibold text-sm flex items-center gap-1">
-                      <svg width='16' height='16' fill='currentColor'><path d='M8 12.472l-4.472 2.35.855-4.99L1 6.763l5.014-.728L8 1.5l1.986 4.535L15 6.763l-3.383 3.07.855 4.99z'/></svg>{movie.vote_average}
-                    </span>
-                  </div>
-                  <div className="text-gray-400 text-xs mb-2 flex items-center gap-2">
-                    <svg width='14' height='14' fill='currentColor'><path d='M7 1a6 6 0 100 12A6 6 0 007 1zm0 10.8A4.8 4.8 0 117 2.2a4.8 4.8 0 010 9.6z'/><path d='M7 4.2a.7.7 0 01.7.7v2.1a.7.7 0 01-1.4 0V4.9A.7.7 0 017 4.2zm0 5.6a.7.7 0 100-1.4.7.7 0 000 1.4z'/></svg>{movie.release_date ? movie.release_date.slice(0, 4) : ""}
-                  </div>
-                  <p className="text-gray-300 text-sm line-clamp-3">{movie.overview}</p>
-                </div>
-              </div>
-            ))
+          ) : movieCards.length > 0 ? (
+            movieCards
           ) : (
             <div className="text-white">No movies found for this page.</div>
           )}

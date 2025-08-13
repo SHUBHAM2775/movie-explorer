@@ -1,15 +1,19 @@
+
 import { NextResponse } from 'next/server';
 
 const TMDB_API_BASE = 'https://api.themoviedb.org/3';
+// Use only TMDB_API_KEY for server-side API requests
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
-
-console.log("TMDB_API_KEY:", TMDB_API_KEY);
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const endpoint = searchParams.get('endpoint');
   if (!endpoint) {
     return NextResponse.json({ error: 'Missing endpoint parameter' }, { status: 400 });
+  }
+
+  if (!TMDB_API_KEY) {
+    return NextResponse.json({ error: 'TMDB API key not set on server.' }, { status: 500 });
   }
 
   // Collect all other search params
@@ -24,7 +28,6 @@ export async function GET(request: Request) {
     const res = await fetch(url);
     const data = await res.json();
     if (!res.ok) {
-      // Return TMDB error message for easier debugging
       return NextResponse.json({ error: data.status_message || 'TMDB error', status_code: data.status_code }, { status: res.status });
     }
     return NextResponse.json(data);

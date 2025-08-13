@@ -27,7 +27,13 @@ export default function MovieDetailPage() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(`/api/tmdb?endpoint=movie/${id}`);
+  const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+        if (!apiKey) {
+          setError("TMDB API key not set.");
+          setLoading(false);
+          return;
+        }
+        const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`);
         const data = await res.json();
         if (data.error) throw new Error(data.error);
         setMovie(data);

@@ -31,7 +31,7 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
         {posterUrl ? (
           <Image src={posterUrl} alt={title} width={224} height={320} className="object-cover w-full h-full" />
         ) : (
-          <div className="text-gray-500">No Image</div>
+          <div className="w-full h-80 bg-gray-700 flex items-center justify-center text-gray-400 rounded-t-xl">No Image</div>
         )}
       </div>
       <div className="p-4 flex-1 flex flex-col">
