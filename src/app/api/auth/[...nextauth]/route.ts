@@ -40,7 +40,7 @@ const handler = NextAuth({
       await connectToDatabase();
       const dbUser = await User.findOne({ email: token.email });
       if (dbUser && session.user) {
-        (session.user as any).id = dbUser._id;
+        (session.user as unknown as { id?: string }).id = dbUser._id;
         session.user.name = dbUser.name;
         session.user.email = dbUser.email;
       }

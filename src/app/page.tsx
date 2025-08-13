@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { useState, useEffect } from "react";
-import { fetchPopularMovies } from "../lib/api";
+// ...existing code...
 // ...existing code...
 
 
@@ -46,7 +46,7 @@ export default function Home() {
         }
         setMovies(moviesData);
         setTotalPages(total);
-      } catch (err) {
+      } catch {
         setMovies([]);
         setTotalPages(1);
       }
@@ -143,8 +143,8 @@ export default function Home() {
             const pages = [];
             const maxPagesAhead = 3;
             const maxPagesBehind = 1;
-            let start = Math.max(2, page - maxPagesBehind); // always show 1 separately
-            let end = Math.min(totalPages - 1, page + maxPagesAhead); // always show last separately
+            const start = Math.max(2, page - maxPagesBehind); // always show 1 separately
+            const end = Math.min(totalPages - 1, page + maxPagesAhead); // always show last separately
             // First page
             pages.push(
               <button key={1} className={`px-3 py-2 rounded border cursor-pointer ${page === 1 ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(1)} disabled={loading}>1</button>

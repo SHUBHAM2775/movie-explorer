@@ -22,8 +22,12 @@ export default function RegisterPage() {
       alert("Registration successful! Please login.");
       setOpen(false);
       router.push("/auth/login");
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err && 'message' in err) {
+        alert((err as { message?: string }).message);
+      } else {
+        alert('An error occurred');
+      }
     }
   };
 

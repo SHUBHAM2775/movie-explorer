@@ -14,7 +14,7 @@ export async function PUT(req: NextRequest) {
   }
 
   const { name, email, password } = await req.json();
-  const update: any = {};
+  const update: Record<string, unknown> = {};
   if (name !== undefined && name !== null && name !== "") update.name = name;
   if (email !== undefined && email !== null && email !== "") update.email = email;
   if (password) update.password = await bcrypt.hash(password, 10);
@@ -30,7 +30,7 @@ export async function PUT(req: NextRequest) {
     }
     const user = userDoc.toObject();
     return NextResponse.json({ message: 'Profile updated', user: { name: user.name, email: user.email } });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
   }
 }

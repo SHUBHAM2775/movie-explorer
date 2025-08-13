@@ -22,8 +22,12 @@ export default function LoginPage() {
       if (res?.error) throw new Error(res.error);
       setOpen(false);
       router.push("/");
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err && 'message' in err) {
+        alert((err as { message?: string }).message);
+      } else {
+        alert('An error occurred');
+      }
     }
   };
 

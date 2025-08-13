@@ -21,8 +21,11 @@ export async function POST(req: NextRequest) {
     const user = await User.create({ name, email, password: hashed });
 
     return NextResponse.json({ message: "User registered", user: { name: user.name, email: user.email } });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Register API error:", err);
-    return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
+    if (typeof err === 'object' && err && 'message' in err) {
+      return NextResponse.json({ error: (err as { message?: string }).message || "Internal Server Error" }, { status: 500 });
+    }
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
