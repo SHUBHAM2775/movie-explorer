@@ -171,7 +171,7 @@ function DefaultMovieTabs() {
         total = data.total_pages || 1;
         setMovies(moviesData);
         setTotalPages(total);
-      } catch (err) {
+      } catch {
         setError("Failed to fetch movies");
         setMovies([]);
         setTotalPages(1);
@@ -191,7 +191,7 @@ function DefaultMovieTabs() {
             width={224}
             height={320}
             className="rounded-t-xl w-full h-80 object-cover"
-            priority={false}
+            priority={true}
           />
         ) : (
           <div className="w-full h-80 bg-gray-700 flex items-center justify-center text-gray-400 rounded-t-xl">
@@ -238,7 +238,7 @@ function DefaultMovieTabs() {
         {error ? (
           <div className="text-red-500 text-center w-full mb-8">{error}</div>
         ) : loading ? (
-          <div className="text-white">Loading...</div>
+          <div className="text-white animate-pulse">Loading...</div>
         ) : movieCards.length > 0 ? (
           movieCards
         ) : (

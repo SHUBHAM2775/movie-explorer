@@ -17,7 +17,7 @@ import Navbar from "./components/Navbar";
 import { Providers } from "./providers";
 import { SearchProvider } from "./context/SearchContext";
 // TODO: Add auth check logic here if needed
-import { useState } from "react";
+// import { useState } from "react";
 
 export default function RootLayout({
   children,
