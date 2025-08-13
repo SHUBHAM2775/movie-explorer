@@ -4,7 +4,7 @@ const MONGODB_URI = process.env.MONGODB_URI!; // Set your DB string in .env.loca
 
 if (!MONGODB_URI) throw new Error("Please define the MONGODB_URI environment variable");
 
-let cached = (global as any).mongoose || { conn: null, promise: null };
+const cached = (global as unknown as { mongoose?: { conn: unknown; promise: unknown } }).mongoose || { conn: null, promise: null };
 
 export async function connectToDatabase() {
   if (cached.conn) return cached.conn;

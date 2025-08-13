@@ -1,5 +1,5 @@
 // Movie listing page skeleton
-import MovieList from "../components/MovieList";
+// ...existing code...
 
 export default function MoviesPage() {
 }

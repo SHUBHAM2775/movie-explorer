@@ -28,7 +28,7 @@ export default function MovieList() {
         const data = await res.json();
         setMovies(data.results);
         setTotalPages(data.total_pages);
-      } catch (err) {
+      } catch {
         setMovies([]);
       }
       setLoading(false);

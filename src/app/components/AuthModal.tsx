@@ -32,8 +32,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ mode, onClose, onAuth, switchMode
         await onAuth({ email, password });
         setMessage("");
       }
-    } catch (err: any) {
-      setMessage(err?.message || "Something went wrong.");
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err && 'message' in err) {
+        setMessage((err as { message?: string }).message || "Something went wrong.");
+      } else {
+        setMessage("Something went wrong.");
+      }
     }
     setLoading(false);
   };
@@ -125,7 +129,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ mode, onClose, onAuth, switchMode
         <div className={styles.switchMode}>
           {mode === "login" ? (
             <>
-              <span>Don't have an account?</span>
+              <span>Don&apos;t have an account?</span>
               <button type="button" onClick={switchMode} className={styles.switchButton}>
                 Create Account
               </button>

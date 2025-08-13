@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 
 import { useState, useEffect } from "react";
 import { fetchPopularMovies } from "../lib/api";
@@ -100,7 +101,16 @@ export default function Home() {
           ) : movies && movies.length > 0 ? (
             movies.map((movie) => (
               <div className="w-56" key={movie.id}>
-                <img src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined} alt={movie.title} className="rounded-t-xl w-full h-80 object-cover" />
+                {movie.poster_path ? (
+                  <Image
+                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                    alt={movie.title}
+                    width={224}
+                    height={320}
+                    className="rounded-t-xl w-full h-80 object-cover"
+                    priority={false}
+                  />
+                ) : null}
                 <div className="bg-[#23213A] p-4 rounded-b-xl">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-white font-bold">{movie.title}</span>
