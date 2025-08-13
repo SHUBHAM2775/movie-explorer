@@ -21,8 +21,12 @@ export async function GET(request: Request) {
   try {
     const res = await fetch(url);
     const data = await res.json();
+    if (!res.ok) {
+      // Return TMDB error message for easier debugging
+      return NextResponse.json({ error: data.status_message || 'TMDB error', status_code: data.status_code }, { status: res.status });
+    }
     return NextResponse.json(data);
-  } catch {
-    return NextResponse.json({ error: 'Failed to fetch TMDB data' }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ error: 'Failed to fetch TMDB data', details: String(err) }, { status: 500 });
   }
 }
