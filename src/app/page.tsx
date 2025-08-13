@@ -1,74 +1,59 @@
 "use client";
 import Link from "next/link";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { fetchPopularMovies } from "../lib/api";
 // ...existing code...
 
-const popularMovies = [
-  {
-    posterUrl: "https://image.tmdb.org/t/p/w500/qmDpIHrmpJINaRKAfWQfftjCdyi.jpg",
-    title: "Inception",
-    year: "2010",
-    rating: 8.3,
-    description: "A thief who enters people's dreams to steal their secrets from their subconscious is given a chance to have his past crimes forgiven."
-  },
-  {
-    posterUrl: "https://image.tmdb.org/t/p/w500/1hRoyzDtpgMU7Dz4JF22RANzQO7.jpg",
-    title: "The Dark Knight",
-    year: "2008",
-    rating: 9.0,
-    description: "Batman raises the stakes in his war on crime. With the help of Lt. Jim Gordon and DA Harvey Dent, Batman sets out to dismantle the remaining criminal organizations."
-  },
-  {
-    posterUrl: "https://image.tmdb.org/t/p/w500/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg",
-    title: "Interstellar",
-    year: "2014",
-    rating: 8.4,
-    description: "The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel."
-  },
-  {
-    posterUrl: "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
-    title: "The Matrix",
-    year: "1999",
-    rating: 8.2,
-    description: "Set in the 22nd century, The Matrix tells the story of a computer hacker who joins a group of underground insurgents fighting the vast and powerful computers who now rule the earth."
-  },
-];
 
-const trendingMovies = [
-  {
-    posterUrl: "https://image.tmdb.org/t/p/w500/ynXoOxmDHNQ4UAy0oU6avW71HVW.jpg",
-    title: "Joker",
-    year: "2019",
-    rating: 8.5,
-    description: "A mentally troubled stand-up comedian embarks on a downward spiral that leads to the creation of an iconic villain."
-  },
-  {
-    posterUrl: "https://image.tmdb.org/t/p/w500/6FfCtAuVAW8XJjZ7eWeLibRLWTw.jpg",
-    title: "Avengers: Endgame",
-    year: "2019",
-    rating: 8.4,
-    description: "After the devastating events of Avengers: Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more."
-  },
-  {
-    posterUrl: "https://image.tmdb.org/t/p/w500/2CAL2433ZeIihfX1Hb2139CX0pW.jpg",
-    title: "La La Land",
-    year: "2016",
-    rating: 8.0,
-    description: "While navigating their careers in Los Angeles, a pianist and an actress fall in love while attempting to reconcile their aspirations for the future."
-  },
-  {
-    posterUrl: "https://image.tmdb.org/t/p/w500/5KCVkau1HEl7ZzfPsKAPM0sMiKc.jpg",
-    title: "John Wick",
-    year: "2014",
-    rating: 7.4,
-    description: "An ex-hitman comes out of retirement to track down the gangsters that killed his dog and took everything from him."
-  },
-];
+// API key is handled in src/lib/api.ts
+
+type Movie = {
+  id: number;
+  poster_path: string | null;
+  title: string;
+  release_date: string;
+  vote_average: number;
+  overview: string;
+};
 
 export default function Home() {
   const [tab, setTab] = useState<'popular' | 'trending'>('popular');
-  const movies = tab === 'popular' ? popularMovies : trendingMovies;
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    async function fetchMovies() {
+      setLoading(true);
+      try {
+        let moviesData = [];
+        let total = 1;
+        if (tab === "popular") {
+          const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+          const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`);
+          const data = await res.json();
+          moviesData = data.results;
+          total = data.total_pages;
+        } else {
+          const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+          const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_API_KEY}&page=${page}`);
+          const data = await res.json();
+          moviesData = data.results;
+          total = data.total_pages || 1;
+        }
+        setMovies(moviesData);
+        setTotalPages(total);
+      } catch (err) {
+        setMovies([]);
+        setTotalPages(1);
+      }
+      setLoading(false);
+    }
+    fetchMovies();
+  }, [tab, page]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#18122B] to-[#23213A]">
       {/* Hero Section */}
@@ -110,23 +95,75 @@ export default function Home() {
       {/* Movie Cards Row */}
       <div className="px-8 pb-12">
         <div className="flex flex-wrap gap-8 justify-center">
-          {movies.map((movie, idx) => (
-            <div className="w-56" key={idx}>
-              <img src={movie.posterUrl} alt={movie.title} className="rounded-t-xl w-full h-80 object-cover" />
-              <div className="bg-[#23213A] p-4 rounded-b-xl">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-white font-bold">{movie.title}</span>
-                  <span className="text-yellow-400 font-semibold text-sm flex items-center gap-1">
-                    <svg width='16' height='16' fill='currentColor'><path d='M8 12.472l-4.472 2.35.855-4.99L1 6.763l5.014-.728L8 1.5l1.986 4.535L15 6.763l-3.383 3.07.855 4.99z'/></svg>{movie.rating}
-                  </span>
+          {loading ? (
+            <div className="text-white">Loading...</div>
+          ) : movies && movies.length > 0 ? (
+            movies.map((movie) => (
+              <div className="w-56" key={movie.id}>
+                <img src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined} alt={movie.title} className="rounded-t-xl w-full h-80 object-cover" />
+                <div className="bg-[#23213A] p-4 rounded-b-xl">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white font-bold">{movie.title}</span>
+                    <span className="text-yellow-400 font-semibold text-sm flex items-center gap-1">
+                      <svg width='16' height='16' fill='currentColor'><path d='M8 12.472l-4.472 2.35.855-4.99L1 6.763l5.014-.728L8 1.5l1.986 4.535L15 6.763l-3.383 3.07.855 4.99z'/></svg>{movie.vote_average}
+                    </span>
+                  </div>
+                  <div className="text-gray-400 text-xs mb-2 flex items-center gap-2">
+                    <svg width='14' height='14' fill='currentColor'><path d='M7 1a6 6 0 100 12A6 6 0 007 1zm0 10.8A4.8 4.8 0 117 2.2a4.8 4.8 0 010 9.6z'/><path d='M7 4.2a.7.7 0 01.7.7v2.1a.7.7 0 01-1.4 0V4.9A.7.7 0 017 4.2zm0 5.6a.7.7 0 100-1.4.7.7 0 000 1.4z'/></svg>{movie.release_date ? movie.release_date.slice(0, 4) : ""}
+                  </div>
+                  <p className="text-gray-300 text-sm line-clamp-3">{movie.overview}</p>
                 </div>
-                <div className="text-gray-400 text-xs mb-2 flex items-center gap-2">
-                  <svg width='14' height='14' fill='currentColor'><path d='M7 1a6 6 0 100 12A6 6 0 007 1zm0 10.8A4.8 4.8 0 117 2.2a4.8 4.8 0 010 9.6z'/><path d='M7 4.2a.7.7 0 01.7.7v2.1a.7.7 0 01-1.4 0V4.9A.7.7 0 017 4.2zm0 5.6a.7.7 0 100-1.4.7.7 0 000 1.4z'/></svg>{movie.year}
-                </div>
-                <p className="text-gray-300 text-sm line-clamp-3">{movie.description}</p>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="text-white">No movies found for this page.</div>
+          )}
+        </div>
+        {/* Pagination Controls with numbered boxes */}
+        <div className="flex justify-center mt-8 gap-2 items-center">
+          <button
+            className="px-3 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1 || loading}
+          >
+            Prev
+          </button>
+          {/* Page number boxes logic */}
+          {(() => {
+            const pages = [];
+            const maxPagesAhead = 3;
+            const maxPagesBehind = 1;
+            let start = Math.max(2, page - maxPagesBehind); // always show 1 separately
+            let end = Math.min(totalPages - 1, page + maxPagesAhead); // always show last separately
+            // First page
+            pages.push(
+              <button key={1} className={`px-3 py-2 rounded border cursor-pointer ${page === 1 ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(1)} disabled={loading}>1</button>
+            );
+            // Ellipsis after first page if needed
+            if (start > 2) pages.push(<span key="start-ellipsis" className="px-2 text-white">...</span>);
+            // Middle pages
+            for (let i = start; i <= end; i++) {
+              pages.push(
+                <button key={i} className={`px-3 py-2 rounded border cursor-pointer ${page === i ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(i)} disabled={loading}>{i}</button>
+              );
+            }
+            // Ellipsis before last page if needed
+            if (end < totalPages - 1) pages.push(<span key="end-ellipsis" className="px-2 text-white">...</span>);
+            // Last page
+            if (totalPages > 1) {
+              pages.push(
+                <button key={totalPages} className={`px-3 py-2 rounded border cursor-pointer ${page === totalPages ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(totalPages)} disabled={loading}>{totalPages}</button>
+              );
+            }
+            return pages;
+          })()}
+          <button
+            className="px-3 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={loading || (page === totalPages && (!movies || movies.length === 0))}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
