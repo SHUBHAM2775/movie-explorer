@@ -2,9 +2,6 @@
 import { useEffect, useState } from "react";
 import MovieCard from "./MovieCard";
 
-const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-const TMDB_API_URL = "https://api.themoviedb.org/3/movie/popular";
-
 type Movie = {
   id: number;
   poster_path: string | null;
@@ -24,7 +21,8 @@ export default function MovieList() {
     async function fetchMovies() {
       setLoading(true);
       try {
-        const res = await fetch(`${TMDB_API_URL}?api_key=${TMDB_API_KEY}&page=${page}`);
+        // Use serverless proxy API
+        const res = await fetch(`/api/tmdb?endpoint=movie/popular&page=${page}`);
         const data = await res.json();
         setMovies(data.results);
         setTotalPages(data.total_pages);

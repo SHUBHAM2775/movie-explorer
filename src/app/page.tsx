@@ -31,19 +31,16 @@ export default function Home() {
       try {
         let moviesData = [];
         let total = 1;
+        let url = "";
         if (tab === "popular") {
-          const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-          const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`);
-          const data = await res.json();
-          moviesData = data.results;
-          total = data.total_pages;
+          url = `/api/tmdb?endpoint=movie/popular&language=en-US&page=${page}`;
         } else {
-          const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-          const res = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_API_KEY}&page=${page}`);
-          const data = await res.json();
-          moviesData = data.results;
-          total = data.total_pages || 1;
+          url = `/api/tmdb?endpoint=trending/movie/week&page=${page}`;
         }
+        const res = await fetch(url);
+        const data = await res.json();
+        moviesData = data.results;
+        total = data.total_pages || 1;
         setMovies(moviesData);
         setTotalPages(total);
       } catch {
