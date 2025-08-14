@@ -235,13 +235,13 @@ function DefaultMovieTabs() {
         </div>
       </div>
       {/* Movie Cards Row */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 w-full">
         {error ? (
           <div className="text-red-500 text-center w-full mb-8">{error}</div>
         ) : loading ? (
           <div className="text-white animate-pulse">Loading...</div>
         ) : movieCards.length > 0 ? (
-            <div>
+                <div className="w-56">
               {movies.map((movie) => (
                 <Link key={movie.id} href={`/movies/${movie.id}`} style={{ textDecoration: "none" }}>
                   <div>
