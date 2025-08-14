@@ -1,5 +1,6 @@
 
 import { useState, useRef } from "react";
+import { fetchTMDB } from '../lib/api';
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -28,9 +29,8 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       setResults([]);
       return;
     }
-    try {
-      const res = await fetch(`/api/tmdb?endpoint=search/movie&query=${encodeURIComponent(search)}`);
-      const data = await res.json();
+      try {
+        const data = await fetchTMDB('search/movie', { query: search });
       setResults(data.results || []);
     } catch {
       setResults([]);

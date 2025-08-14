@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import { fetchTMDB } from './lib/api';
 import { useState, useEffect, useMemo } from "react";
 import { useSearch } from "./context/SearchContext";
 import MovieList from "./components/MovieList";
 import MovieCard from "./components/MovieCard";
+import { useTheme } from "./context/ThemeContext";
 
 // Movie type definition for local use
 type Movie = {
@@ -35,18 +37,18 @@ type AvatarMovieDetail = Movie & {
 };
 
 export default function Home() {
+  const { theme } = useTheme();
   const { searchQuery } = useSearch();
   const [avatarInfo, setAvatarInfo] = useState<AvatarMovieDetail | null>(null);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   useEffect(() => {
     // Fetch Avatar movie info from TMDB (id: 19995)
-    fetch(`/api/tmdb?endpoint=movie/19995&append_to_response=credits,images,videos,reviews`)
-      .then(res => res.json())
+    fetchTMDB('movie/19995', { append_to_response: 'credits,images,videos,reviews' })
       .then(data => setAvatarInfo(data));
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#18122B] to-[#23213A]">
+    <div className={`min-h-screen ${theme === "dark" ? "bg-gradient-to-b from-black to-gray-900 text-yellow-400" : "bg-gradient-to-b from-white to-yellow-50 text-black"}`}>
       {/* Hero Section */}
       <section className="relative flex flex-col justify-center items-start h-[60vh] px-8 pt-12 pb-8 bg-cover bg-center" style={{backgroundImage: "url('https://image.tmdb.org/t/p/original/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg')"}}>
         <div className="absolute inset-0 bg-gradient-to-r from-[#18122B]/90 to-[#23213A]/60 z-0" />
@@ -138,29 +140,36 @@ export default function Home() {
 }
 
 // Default tabs for popular/trending movies (original homepage logic)
+
+import { useFavorites } from "./hooks/useFavorites";
+
+
 function DefaultMovieTabs() {
-  const [tab, setTab] = useState<'popular' | 'trending'>('popular');
+  const [tab, setTab] = useState<'popular' | 'trending' | 'favorites'>('popular');
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<string>("");
+  const { favorites } = useFavorites();
+  // Force re-render on favorites change for fast load
+  const [favoritesVersion, setFavoritesVersion] = useState(0);
+  useEffect(() => {
+    setFavoritesVersion(v => v + 1);
+  }, [favorites]);
 
   useEffect(() => {
+    if (tab === "favorites") return;
     async function fetchMovies() {
       setLoading(true);
       setError("");
       try {
-        let moviesData = [];
-        let total = 1;
-        let url = "";
+        let data;
         if (tab === "popular") {
-          url = `/api/tmdb?endpoint=movie/popular&language=en-US&page=${page}`;
+          data = await fetchTMDB('movie/popular', { language: 'en-US', page: String(page) });
         } else {
-          url = `/api/tmdb?endpoint=trending/movie/week&page=${page}`;
+          data = await fetchTMDB('trending/movie/week', { page: String(page) });
         }
-        const res = await fetch(url);
-        const data = await res.json();
         if (data.error) {
           setError(data.error);
           setMovies([]);
@@ -168,10 +177,8 @@ function DefaultMovieTabs() {
           setLoading(false);
           return;
         }
-        moviesData = data.results;
-        total = data.total_pages || 1;
-        setMovies(moviesData);
-        setTotalPages(total);
+        setMovies(data.results);
+        setTotalPages(data.total_pages || 1);
       } catch {
         setError("Failed to fetch movies");
         setMovies([]);
@@ -182,19 +189,19 @@ function DefaultMovieTabs() {
     fetchMovies();
   }, [tab, page]);
 
-    const movieCards = useMemo(() => (
-      movies.map((movie) => (
-        <MovieCard
-          key={movie.id}
-          id={movie.id}
-          posterUrl={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined}
-          title={movie.title}
-          year={movie.release_date ? movie.release_date.slice(0, 4) : ""}
-          rating={movie.vote_average}
-          description={movie.overview}
-        />
-      ))
-    ), [movies]);
+  const movieCards = useMemo(() => (
+    (tab === "favorites" ? favorites : movies).map((movie: import("./types/movie").Movie) => (
+      <MovieCard
+        key={movie.id}
+        id={movie.id}
+        posterUrl={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : movie.posterUrl}
+        title={movie.title}
+        year={movie.release_date ? movie.release_date.slice(0, 4) : movie.year || ""}
+        rating={movie.vote_average ?? movie.rating}
+        description={movie.overview ?? movie.description}
+      />
+    ))
+  ), [movies, favorites, tab]);
 
   return (
     <>
@@ -213,11 +220,23 @@ function DefaultMovieTabs() {
           >
             Trending
           </button>
+          <button
+            className={`px-4 py-2 rounded font-semibold focus:outline-none focus:ring-2 cursor-pointer ${tab === 'favorites' ? 'bg-yellow-400 text-black focus:ring-yellow-400' : 'bg-transparent text-gray-300 hover:bg-[#23213A] focus:ring-purple-400'}`}
+            onClick={() => setTab('favorites')}
+          >
+            My Favorites
+          </button>
         </div>
       </div>
       {/* Movie Cards Row */}
       <div className="flex flex-wrap gap-8 justify-center">
-        {error ? (
+        {tab === "favorites" ? (
+          favorites.length === 0 ? (
+            <div className="text-gray-400">No favorite movies yet.</div>
+          ) : (
+            movieCards
+          )
+        ) : error ? (
           <div className="text-red-500 text-center w-full mb-8">{error}</div>
         ) : loading ? (
           <div className="text-white animate-pulse">Loading...</div>
@@ -228,51 +247,53 @@ function DefaultMovieTabs() {
         )}
       </div>
       {/* Pagination Controls with numbered boxes */}
-      <div className="flex justify-center mt-8 gap-2 items-center">
-        <button
-          className="px-3 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page === 1 || loading}
-        >
-          Prev
-        </button>
-        {/* Page number boxes logic */}
-        {(() => {
-          const pages = [];
-          const maxPagesAhead = 3;
-          const maxPagesBehind = 1;
-          const start = Math.max(2, page - maxPagesBehind); // always show 1 separately
-          const end = Math.min(totalPages - 1, page + maxPagesAhead); // always show last separately
-          // First page
-          pages.push(
-            <button key={1} className={`px-3 py-2 rounded border cursor-pointer ${page === 1 ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(1)} disabled={loading}>1</button>
-          );
-          // Ellipsis after first page if needed
-          if (start > 2) pages.push(<span key="start-ellipsis" className="px-2 text-white">...</span>);
-          // Middle pages
-          for (let i = start; i <= end; i++) {
+      {tab !== "favorites" && (
+        <div className="flex justify-center mt-8 gap-2 items-center">
+          <button
+            className="px-3 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1 || loading}
+          >
+            Prev
+          </button>
+          {/* Page number boxes logic */}
+          {(() => {
+            const pages = [];
+            const maxPagesAhead = 3;
+            const maxPagesBehind = 1;
+            const start = Math.max(2, page - maxPagesBehind); // always show 1 separately
+            const end = Math.min(totalPages - 1, page + maxPagesAhead); // always show last separately
+            // First page
             pages.push(
-              <button key={i} className={`px-3 py-2 rounded border cursor-pointer ${page === i ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(i)} disabled={loading}>{i}</button>
+              <button key={1} className={`px-3 py-2 rounded border cursor-pointer ${page === 1 ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(1)} disabled={loading}>1</button>
             );
-          }
-          // Ellipsis before last page if needed
-          if (end < totalPages - 1) pages.push(<span key="end-ellipsis" className="px-2 text-white">...</span>);
-          // Last page
-          if (totalPages > 1) {
-            pages.push(
-              <button key={totalPages} className={`px-3 py-2 rounded border cursor-pointer ${page === totalPages ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(totalPages)} disabled={loading}>{totalPages}</button>
-            );
-          }
-          return pages;
-        })()}
-        <button
-          className="px-3 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={loading || (page === totalPages && (!movies || movies.length === 0))}
-        >
-          Next
-        </button>
-      </div>
+            // Ellipsis after first page if needed
+            if (start > 2) pages.push(<span key="start-ellipsis" className="px-2 text-white">...</span>);
+            // Middle pages
+            for (let i = start; i <= end; i++) {
+              pages.push(
+                <button key={i} className={`px-3 py-2 rounded border cursor-pointer ${page === i ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(i)} disabled={loading}>{i}</button>
+              );
+            }
+            // Ellipsis before last page if needed
+            if (end < totalPages - 1) pages.push(<span key="end-ellipsis" className="px-2 text-white">...</span>);
+            // Last page
+            if (totalPages > 1) {
+              pages.push(
+                <button key={totalPages} className={`px-3 py-2 rounded border cursor-pointer ${page === totalPages ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(totalPages)} disabled={loading}>{totalPages}</button>
+              );
+            }
+            return pages;
+          })()}
+          <button
+            className="px-3 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={loading || (page === totalPages && (!movies || movies.length === 0))}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </>
   );
 }

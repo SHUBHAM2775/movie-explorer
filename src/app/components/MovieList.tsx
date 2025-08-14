@@ -1,5 +1,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { fetchTMDB } from '../lib/api';
 import MovieCard from "./MovieCard";
 import Image from "next/image";
 
@@ -51,14 +52,12 @@ export default function MovieList({ searchQuery }: MovieListProps) {
         setLoading(true);
         setError("");
         try {
-          let url = "";
+          let data;
           if (typeof searchQuery === "string" && searchQuery.length > 0) {
-            url = `/api/tmdb?endpoint=search/movie&query=${encodeURIComponent(searchQuery)}&page=${page}`;
+            data = await fetchTMDB('search/movie', { query: searchQuery, page: String(page) });
           } else {
-            url = `/api/tmdb?endpoint=movie/popular&page=${page}`;
+            data = await fetchTMDB('movie/popular', { page: String(page) });
           }
-          const res = await fetch(url);
-          const data = await res.json();
           if (data.error) {
             setError(data.error);
             setMovies([]);
@@ -91,9 +90,8 @@ export default function MovieList({ searchQuery }: MovieListProps) {
     setModalOpen(true);
     setSelectedMovie(null);
     try {
-      const res = await fetch(`/api/tmdb?endpoint=movie/${id}&append_to_response=credits,images,videos,reviews`);
-      const data = await res.json();
-      setSelectedMovie(data);
+      const details = await fetchTMDB(`movie/${id}`, { append_to_response: 'credits,images,videos,reviews' });
+      setSelectedMovie(details);
     } catch {
       setSelectedMovie(null);
     }

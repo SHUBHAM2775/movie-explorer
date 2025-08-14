@@ -1,4 +1,2 @@
-// useFavorites hook skeleton
-export function useFavorites() {
-  // ...favorites logic here
-}
+
+export { useFavorites } from "../context/FavoritesContext";

@@ -6,15 +6,17 @@ import { useAuth } from "../hooks/useAuth";
 import EditProfileModal from "./EditProfileModal";
 import SearchBar from "./SearchBar";
 import { useSearch } from "../context/SearchContext";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
   const [dropdown, setDropdown] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const { setSearchQuery } = useSearch();
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <nav className="w-full flex items-center justify-between px-8 py-4 bg-gradient-to-r from-[#18122B] to-[#1E1E2F] shadow-md">
+    <nav className={`w-full flex items-center justify-between px-8 py-4 shadow-md transition-all duration-300 ${theme === "dark" ? "bg-black text-yellow-400" : "bg-white text-yellow-500"}`}>
       <div className="flex items-center gap-2">
         <Link href="/">
           <span className="text-2xl cursor-pointer flex items-center">
@@ -40,6 +42,12 @@ export default function Navbar() {
         </div>
       </div>
       <div className="flex items-center gap-4 relative">
+        <button
+          onClick={toggleTheme}
+          className={`px-3 py-2 rounded transition ${theme === "dark" ? "bg-yellow-400 text-black" : "bg-yellow-500 text-white"}`}
+        >
+          {theme === "dark" ? "🌙" : "☀️"}
+        </button>
         {loading ? null : user ? (
           <div className="relative">
             <button
@@ -49,15 +57,15 @@ export default function Navbar() {
               {user.name || (user.email ? user.email.split("@")[0] : "User")}
             </button>
             {dropdown && (
-              <div className="absolute right-0 mt-2 w-40 bg-white rounded shadow-lg z-10 flex flex-col">
+              <div className={`absolute right-0 mt-2 w-40 rounded shadow-lg z-10 flex flex-col ${theme === "dark" ? "bg-black text-yellow-400" : "bg-white text-gray-800"}`}>
                 <button
-                  className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-yellow-100"
+                  className={`block w-full text-left px-4 py-2 hover:bg-yellow-100 ${theme === "dark" ? "hover:bg-yellow-900" : ""}`}
                   onClick={() => { setEditProfileOpen(true); setDropdown(false); }}
                 >
                   Edit Profile
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-yellow-100"
+                  className={`block w-full text-left px-4 py-2 hover:bg-yellow-100 ${theme === "dark" ? "hover:bg-yellow-900" : ""}`}
                   onClick={() => logout()}
                 >
                   Logout
@@ -68,7 +76,7 @@ export default function Navbar() {
           </div>
         ) : (
           <Link href="/auth/login">
-            <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded transition-all shadow cursor-pointer">
+            <button className={`bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-5 py-2 rounded transition-all shadow cursor-pointer`}>
               Sign In
             </button>
           </Link>

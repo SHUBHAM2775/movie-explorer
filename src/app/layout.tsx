@@ -16,23 +16,20 @@ const geistMono = Geist_Mono({
 import Navbar from "./components/Navbar";
 import { Providers } from "./providers";
 import { SearchProvider } from "./context/SearchContext";
+import { ThemeProvider } from "./context/ThemeContext";
 // TODO: Add auth check logic here if needed
-// import { useState } from "react";
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>
-          <SearchProvider>
-            <Navbar />
-            {children}
-          </SearchProvider>
-        </Providers>
+        <ThemeProvider>
+          <Providers>
+            <SearchProvider>
+              <Navbar />
+              {children}
+            </SearchProvider>
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );
