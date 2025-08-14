@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { fetchTMDB } from './lib/api';
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearch } from "./context/SearchContext";
 import MovieList from "./components/MovieList";
 import MovieCard from "./components/MovieCard";
@@ -18,114 +17,65 @@ type Movie = {
   overview: string;
 };
 
-// Avatar movie detail type for modal
-type AvatarMovieDetail = Movie & {
-  runtime?: number;
-  genres?: { id: number; name: string }[];
-  tagline?: string;
-  production_companies?: { id: number; name: string }[];
-  credits?: {
-    cast?: { name: string }[];
-    crew?: { name: string; job: string }[];
-  };
-  videos?: {
-    results?: { key: string }[];
-  };
-  reviews?: {
-    results?: { content: string }[];
-  };
-};
-
 export default function Home() {
   const { theme } = useTheme();
   const { searchQuery } = useSearch();
-  const [avatarInfo, setAvatarInfo] = useState<AvatarMovieDetail | null>(null);
-  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  // Featured movies for hero section
+  const featuredMovies = [
+    {
+      title: "Avatar",
+      description: "In the 22nd century, a paraplegic Marine is dispatched to the moon Pandora on a unique mission, but becomes torn between following orders and protecting an alien civilization.",
+      image: "https://image.tmdb.org/t/p/original/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg",
+      trailer: "https://www.youtube.com/watch?v=5PSNL1qE6VY",
+      info: "https://www.imdb.com/title/tt0499549/"
+    },
+    {
+      title: "Inception",
+      description: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO.",
+      image: "https://image.tmdb.org/t/p/original/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
+      trailer: "https://www.youtube.com/watch?v=YoHD9XEInc0",
+      info: "https://www.imdb.com/title/tt1375666/"
+    },
+    {
+      title: "Interstellar",
+      description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
+      image: "https://image.tmdb.org/t/p/original/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg",
+      trailer: "https://www.youtube.com/watch?v=zSWdZVtXT7E",
+      info: "https://www.imdb.com/title/tt0816692/"
+    }
+  ];
+  const [current, setCurrent] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    // Fetch Avatar movie info from TMDB (id: 19995)
-    fetchTMDB('movie/19995', { append_to_response: 'credits,images,videos,reviews' })
-      .then(data => setAvatarInfo(data));
-  }, []);
+    intervalRef.current = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % featuredMovies.length);
+    }, 10000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [featuredMovies.length]);
+
+  const movie = featuredMovies[current];
 
   return (
     <div className={`min-h-screen ${theme === "dark" ? "bg-gradient-to-b from-black to-gray-900 text-yellow-400" : "bg-gradient-to-b from-white to-yellow-50 text-black"}`}>
       {/* Hero Section */}
-      <section className="relative flex flex-col justify-center items-start h-[60vh] px-8 pt-12 pb-8 bg-cover bg-center" style={{backgroundImage: "url('https://image.tmdb.org/t/p/original/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg')"}}>
+      <section className="relative flex flex-col justify-center items-start h-[60vh] px-8 pt-12 pb-8 bg-cover bg-center" style={{backgroundImage: `url('${movie.image}')`}}>
         <div className="absolute inset-0 bg-gradient-to-r from-[#18122B]/90 to-[#23213A]/60 z-0" />
         <div className="relative z-10 max-w-2xl">
-          <h1 className="text-5xl font-extrabold text-white mb-4 drop-shadow-lg">Avatar</h1>
-          <p className="text-lg text-gray-200 mb-6 drop-shadow">
-            In the 22nd century, a paraplegic Marine is dispatched to the moon Pandora on a unique mission, but becomes torn between following orders and protecting an alien civilization.
-          </p>
+          <h1 className="text-5xl font-extrabold text-white mb-4 drop-shadow-lg">{movie.title}</h1>
+          <p className="text-lg text-gray-200 mb-6 drop-shadow">{movie.description}</p>
           <div className="flex gap-4">
-            <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded transition-all shadow focus:outline-none cursor-pointer">Watch Trailer</button>
-            <button
-              className="bg-black/80 hover:bg-black text-white font-bold px-6 py-2 rounded border border-gray-400 transition-all shadow focus:outline-none cursor-pointer"
-              onClick={() => setAvatarModalOpen(true)}
-            >
-              More Info
-            </button>
+            <a href={movie.trailer} target="_blank" rel="noopener noreferrer">
+              <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded transition-all shadow focus:outline-none cursor-pointer">Watch Trailer</button>
+            </a>
+            <a href={movie.info} target="_blank" rel="noopener noreferrer">
+              <button className="bg-black/80 hover:bg-black text-white font-bold px-6 py-2 rounded border border-gray-400 transition-all shadow focus:outline-none cursor-pointer">More Info</button>
+            </a>
           </div>
         </div>
       </section>
-
-      {/* Avatar More Info Modal */}
-      {avatarModalOpen && avatarInfo && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-          <div className="bg-[#23213A] rounded-xl shadow-2xl p-8 max-w-2xl w-full relative">
-            <button className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl" onClick={() => setAvatarModalOpen(false)}>&times;</button>
-            <div className="flex gap-8">
-              {avatarInfo.poster_path ? (
-                <Image src={`https://image.tmdb.org/t/p/w300${avatarInfo.poster_path}`} alt="Avatar Poster" width={160} height={240} className="rounded-lg w-40 h-60 object-cover" />
-              ) : (
-                <div className="w-40 h-60 bg-gray-700 flex items-center justify-center text-gray-400 rounded-lg">No Image</div>
-              )}
-              <div className="flex-1 flex flex-col gap-2">
-                <h2 className="text-2xl font-bold text-white mb-2">{avatarInfo.title}</h2>
-                <div className="flex gap-4 text-gray-400 text-sm mb-2">
-                  <span>Release: {avatarInfo.release_date}</span>
-                  <span>Rating: <span className="text-yellow-400 font-semibold">{avatarInfo.vote_average}</span></span>
-                  {avatarInfo.runtime && <span>Runtime: {avatarInfo.runtime} min</span>}
-                </div>
-                {avatarInfo.genres && (
-                  <div className="flex gap-2 flex-wrap mb-2">
-                    {avatarInfo.genres && avatarInfo.genres.map((g) => (
-                      <span key={g.id} className="px-2 py-1 bg-blue-700 text-white rounded text-xs">{g.name}</span>
-                    ))}
-                  </div>
-                )}
-                <p className="text-gray-300 text-base mb-2">{avatarInfo.overview}</p>
-                {avatarInfo.tagline && <p className="italic text-purple-400 mb-2">{avatarInfo.tagline}</p>}
-                {avatarInfo.production_companies && (
-                  <div className="text-xs text-gray-400 mb-2">Production: {avatarInfo.production_companies.map((c) => c.name).join(", ")}</div>
-                )}
-                {avatarInfo.credits && avatarInfo.credits.cast && (
-                  <div className="text-xs text-gray-400 mb-2">Cast: {avatarInfo.credits.cast.slice(0, 5).map((c) => c.name).join(", ")}</div>
-                )}
-                {avatarInfo.credits && avatarInfo.credits.crew && (
-                  <div className="text-xs text-gray-400 mb-2">Director: {avatarInfo.credits.crew.filter((c) => c.job === "Director").map((c) => c.name).join(", ")}</div>
-                )}
-                {avatarInfo.videos && avatarInfo.videos.results && avatarInfo.videos.results.length > 0 && (
-                  <a
-                    href={`https://www.youtube.com/watch?v=${avatarInfo.videos.results[0].key}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 py-2 rounded transition-all shadow w-fit mt-2"
-                  >
-                    Watch Trailer
-                  </a>
-                )}
-                {avatarInfo.reviews && avatarInfo.reviews.results && avatarInfo.reviews.results.length > 0 && (
-                  <div className="mt-2">
-                    <h3 className="text-sm font-bold text-white mb-1">Top Review:</h3>
-                    <p className="text-gray-300 text-xs italic">{avatarInfo.reviews.results[0].content}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Search Bar is now in Navbar */}
       <div className="px-8 pb-12">
@@ -153,10 +103,9 @@ function DefaultMovieTabs() {
   const [error, setError] = useState<string>("");
   const { favorites } = useFavorites();
   // Force re-render on favorites change for fast load
-  const [favoritesVersion, setFavoritesVersion] = useState(0);
-  useEffect(() => {
-    setFavoritesVersion(v => v + 1);
-  }, [favorites]);
+  // useEffect(() => {
+  //   setFavoritesVersion(v => v + 1);
+  // }, [favorites]);
 
   useEffect(() => {
     if (tab === "favorites") return;
