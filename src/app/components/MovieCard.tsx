@@ -61,7 +61,7 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-1">
           <button
-            className="text-lg font-bold text-white truncate cursor-pointer hover:underline bg-transparent border-none p-0 m-0"
+            className={`text-lg font-bold truncate cursor-pointer hover:underline bg-transparent border-none p-0 m-0 ${theme === "dark" ? "text-white" : "text-black"}`}
             onClick={handleClick}
             onKeyDown={handleKeyDown}
             aria-label={`View details for ${title}`}
