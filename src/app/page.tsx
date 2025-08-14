@@ -235,7 +235,7 @@ function DefaultMovieTabs() {
         </div>
       </div>
       {/* Movie Cards Row */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-center">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full">
         {error ? (
           <div className="text-red-500 text-center w-full mb-8">{error}</div>
         ) : loading ? (
@@ -244,7 +244,7 @@ function DefaultMovieTabs() {
             <div>
               {movies.map((movie) => (
                 <Link key={movie.id} href={`/movies/${movie.id}`} style={{ textDecoration: "none" }}>
-                  <div className="w-56">
+                  <div>
                     {movie.poster_path ? (
                       <Image
                         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
