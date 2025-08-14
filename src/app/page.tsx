@@ -235,7 +235,7 @@ function DefaultMovieTabs() {
         </div>
       </div>
       {/* Movie Cards Row */}
-      <div className="flex flex-wrap gap-8 justify-center">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-center">
         {error ? (
           <div className="text-red-500 text-center w-full mb-8">{error}</div>
         ) : loading ? (
