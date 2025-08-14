@@ -135,7 +135,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ mode, onClose, onAuth, switchMode
               </button>
               <div style={{ marginTop: 8 }}>
                 {/* Use Next.js Link for navigation */}
-                <Link href="/auth/forgot" className={styles.switchButton} style={{ color: '#FFD600', fontSize: '0.95em' }}>Forgot Password?</Link>
+                {/* Forgot Password link removed */}
               </div>
             </>
           ) : (
