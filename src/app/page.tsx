@@ -23,34 +23,47 @@ export default function Home() {
   // Featured movies for hero section
   const featuredMovies = [
     {
-      title: "Avatar",
-      description: "In the 22nd century, a paraplegic Marine is dispatched to the moon Pandora on a unique mission, but becomes torn between following orders and protecting an alien civilization.",
-      image: "https://image.tmdb.org/t/p/original/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg",
-      trailer: "https://www.youtube.com/watch?v=5PSNL1qE6VY",
-      info: "https://www.imdb.com/title/tt0499549/"
-    },
-    {
       title: "Inception",
       description: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO.",
       image: "https://image.tmdb.org/t/p/original/s3TBrRGB1iav7gFOCNx3H31MoES.jpg",
       trailer: "https://www.youtube.com/watch?v=YoHD9XEInc0",
-      info: "https://www.imdb.com/title/tt1375666/"
+      release_date: "2010-07-16",
+      rating: 8.8,
+      genres: ["Action", "Sci-Fi", "Thriller"],
+      cast: ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Ellen Page"],
+      director: "Christopher Nolan"
     },
     {
       title: "Interstellar",
       description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
       image: "https://image.tmdb.org/t/p/original/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg",
       trailer: "https://www.youtube.com/watch?v=zSWdZVtXT7E",
-      info: "https://www.imdb.com/title/tt0816692/"
+      release_date: "2014-11-07",
+      rating: 8.6,
+      genres: ["Adventure", "Drama", "Sci-Fi"],
+      cast: ["Matthew McConaughey", "Anne Hathaway", "Jessica Chastain"],
+      director: "Christopher Nolan"
+    },
+    {
+      title: "The Dark Knight",
+      description: "When the menace known as the Joker emerges, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
+      image: "https://image.tmdb.org/t/p/original/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+      trailer: "https://www.youtube.com/watch?v=EXeTwQWrcwY",
+      release_date: "2008-07-18",
+      rating: 9.0,
+      genres: ["Action", "Crime", "Drama"],
+      cast: ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
+      director: "Christopher Nolan"
     }
   ];
   const [current, setCurrent] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setCurrent((prev) => (prev + 1) % featuredMovies.length);
-    }, 10000);
+    }, 7000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -70,12 +83,50 @@ export default function Home() {
             <a href={movie.trailer} target="_blank" rel="noopener noreferrer">
               <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded transition-all shadow focus:outline-none cursor-pointer">Watch Trailer</button>
             </a>
-            <a href={movie.info} target="_blank" rel="noopener noreferrer">
-              <button className="bg-black/80 hover:bg-black text-white font-bold px-6 py-2 rounded border border-gray-400 transition-all shadow focus:outline-none cursor-pointer">More Info</button>
-            </a>
+            <button
+              className="bg-black/80 hover:bg-black text-white font-bold px-6 py-2 rounded border border-gray-400 transition-all shadow focus:outline-none cursor-pointer"
+              onClick={() => setModalOpen(true)}
+            >
+              More Info
+            </button>
           </div>
         </div>
       </section>
+
+      {/* Hero More Info Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-[#23213A] rounded-xl shadow-2xl p-8 max-w-2xl w-full relative">
+            <button className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl" onClick={() => setModalOpen(false)}>&times;</button>
+            <div className="flex gap-8">
+              <img src={movie.image} alt={movie.title + " Poster"} width={160} height={240} className="rounded-lg w-40 h-60 object-cover" />
+              <div className="flex-1 flex flex-col gap-2">
+                <h2 className="text-2xl font-bold text-white mb-2">{movie.title}</h2>
+                <div className="flex gap-4 text-gray-400 text-sm mb-2">
+                  <span>Release: {movie.release_date}</span>
+                  <span>Rating: <span className="text-yellow-400 font-semibold">{movie.rating}</span></span>
+                </div>
+                <div className="flex gap-2 flex-wrap mb-2">
+                  {movie.genres.map((g) => (
+                    <span key={g} className="px-2 py-1 bg-blue-700 text-white rounded text-xs">{g}</span>
+                  ))}
+                </div>
+                <p className="text-gray-300 text-base mb-2">{movie.description}</p>
+                <div className="text-xs text-gray-400 mb-2">Director: {movie.director}</div>
+                <div className="text-xs text-gray-400 mb-2">Cast: {movie.cast.join(", ")}</div>
+                <a
+                  href={movie.trailer}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 py-2 rounded transition-all shadow w-fit mt-2"
+                >
+                  Watch Trailer
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Search Bar is now in Navbar */}
       <div className="px-8 pb-12">
