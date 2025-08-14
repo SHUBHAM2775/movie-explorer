@@ -17,6 +17,7 @@ export default function Navbar() {
 
   return (
     <nav className={`w-full flex items-center justify-between px-8 py-4 shadow-md transition-all duration-300 ${theme === "dark" ? "bg-black text-yellow-400" : "bg-white text-yellow-500"}`}>
+      {/* Left: Logo */}
       <div className="flex items-center gap-2">
         <Link href="/">
           <span className="text-2xl cursor-pointer flex items-center">
@@ -36,11 +37,11 @@ export default function Navbar() {
           </span>
         </Link>
       </div>
-      <div className="flex-1 flex justify-center">
-        <div className="w-full max-w-xl">
-          <SearchBar onSearch={setSearchQuery} />
-        </div>
+      {/* Center: SearchBar */}
+      <div className="flex items-center justify-center w-full max-w-xl mx-auto">
+        <SearchBar onSearch={setSearchQuery} />
       </div>
+      {/* Right: Theme/User/Sign In */}
       <div className="flex items-center gap-4 relative">
         <button
           onClick={toggleTheme}
