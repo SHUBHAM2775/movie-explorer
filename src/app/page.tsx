@@ -6,6 +6,7 @@ import { useSearch } from "./context/SearchContext";
 import MovieList from "./components/MovieList";
 import MovieCard from "./components/MovieCard";
 import { useTheme } from "./context/ThemeContext";
+import { useAuth } from "./hooks/useAuth";
 
 // Movie type definition for local use
 type Movie = {
@@ -21,6 +22,7 @@ export default function Home() {
   const { theme } = useTheme();
   const { searchQuery } = useSearch();
   // Featured movies for hero section
+  const { user, loading } = useAuth();
   const featuredMovies = [
     {
       title: "Inception",
@@ -70,6 +72,14 @@ export default function Home() {
   }, [featuredMovies.length]);
 
   const movie = featuredMovies[current];
+
+  // If loading, show nothing or a spinner
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-xl">Loading...</div>;
+  }
+
+  // If not signed in, restrict all navigation and interactive actions except trailer and info modal
+  const isSignedIn = !!user;
 
   return (
     <div className={`min-h-screen ${theme === "dark" ? "bg-gradient-to-b from-black to-gray-900 text-yellow-400" : "bg-gradient-to-b from-white to-yellow-50 text-black"}`}>
@@ -128,12 +138,21 @@ export default function Home() {
         </div>
       )}
 
-      {/* Search Bar is now in Navbar */}
+      {/* Restrict all navigation and interactive actions if not signed in */}
       <div className="px-8 pb-12">
-        {searchQuery ? (
-          <MovieList searchQuery={searchQuery} />
+        {isSignedIn ? (
+          searchQuery ? (
+            <MovieList searchQuery={searchQuery} />
+          ) : (
+            <DefaultMovieTabs />
+          )
         ) : (
-          <DefaultMovieTabs />
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="text-2xl font-bold mb-4">Sign in to explore movies and features</div>
+            <div className="text-lg text-gray-400 mb-8">You must be signed in to view movie lists, favorites, or use navigation.</div>
+            {/* Optionally, add a sign-in button/modal here */}
+            {/* Example: <AuthModal mode="login" ... /> */}
+          </div>
         )}
       </div>
     </div>
@@ -203,26 +222,33 @@ function DefaultMovieTabs() {
     ))
   ), [movies, favorites, tab]);
 
+  // ...existing code...
+  // Tabs and Favorites Button
+  // Disable all tab buttons if not signed in
+  const { user } = useAuth();
+  const isSignedIn = !!user;
   return (
     <>
-      {/* Tabs and Favorites Button */}
       <div className="flex items-center justify-between mt-8 mb-4">
         <div className="flex gap-2">
           <button
             className={`px-4 py-2 rounded font-semibold focus:outline-none focus:ring-2 cursor-pointer ${tab === 'popular' ? 'bg-yellow-400 text-black focus:ring-yellow-400' : 'bg-transparent text-gray-300 hover:bg-[#23213A] focus:ring-purple-400'}`}
-            onClick={() => setTab('popular')}
+            onClick={() => isSignedIn && setTab('popular')}
+            disabled={!isSignedIn}
           >
             Popular
           </button>
           <button
             className={`px-4 py-2 rounded font-semibold focus:outline-none focus:ring-2 cursor-pointer ${tab === 'trending' ? 'bg-yellow-400 text-black focus:ring-yellow-400' : 'bg-transparent text-gray-300 hover:bg-[#23213A] focus:ring-purple-400'}`}
-            onClick={() => setTab('trending')}
+            onClick={() => isSignedIn && setTab('trending')}
+            disabled={!isSignedIn}
           >
             Trending
           </button>
           <button
             className={`px-4 py-2 rounded font-semibold focus:outline-none focus:ring-2 cursor-pointer ${tab === 'favorites' ? 'bg-yellow-400 text-black focus:ring-yellow-400' : 'bg-transparent text-gray-300 hover:bg-[#23213A] focus:ring-purple-400'}`}
-            onClick={() => setTab('favorites')}
+            onClick={() => isSignedIn && setTab('favorites')}
+            disabled={!isSignedIn}
           >
             My Favorites
           </button>
@@ -251,8 +277,8 @@ function DefaultMovieTabs() {
         <div className="flex justify-center mt-8 gap-2 items-center">
           <button
             className="px-3 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1 || loading}
+            onClick={() => isSignedIn && setPage((p) => Math.max(1, p - 1))}
+            disabled={!isSignedIn || page === 1 || loading}
           >
             Prev
           </button>
@@ -265,14 +291,14 @@ function DefaultMovieTabs() {
             const end = Math.min(totalPages - 1, page + maxPagesAhead); // always show last separately
             // First page
             pages.push(
-              <button key={1} className={`px-3 py-2 rounded border cursor-pointer ${page === 1 ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(1)} disabled={loading}>1</button>
+              <button key={1} className={`px-3 py-2 rounded border cursor-pointer ${page === 1 ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => isSignedIn && setPage(1)} disabled={!isSignedIn || loading}>1</button>
             );
             // Ellipsis after first page if needed
             if (start > 2) pages.push(<span key="start-ellipsis" className="px-2 text-white">...</span>);
             // Middle pages
             for (let i = start; i <= end; i++) {
               pages.push(
-                <button key={i} className={`px-3 py-2 rounded border cursor-pointer ${page === i ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(i)} disabled={loading}>{i}</button>
+                <button key={i} className={`px-3 py-2 rounded border cursor-pointer ${page === i ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => isSignedIn && setPage(i)} disabled={!isSignedIn || loading}>{i}</button>
               );
             }
             // Ellipsis before last page if needed
@@ -280,15 +306,15 @@ function DefaultMovieTabs() {
             // Last page
             if (totalPages > 1) {
               pages.push(
-                <button key={totalPages} className={`px-3 py-2 rounded border cursor-pointer ${page === totalPages ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => setPage(totalPages)} disabled={loading}>{totalPages}</button>
+                <button key={totalPages} className={`px-3 py-2 rounded border cursor-pointer ${page === totalPages ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'}`} onClick={() => isSignedIn && setPage(totalPages)} disabled={!isSignedIn || loading}>{totalPages}</button>
               );
             }
             return pages;
           })()}
           <button
             className="px-3 py-2 bg-gray-700 text-white rounded disabled:opacity-50"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={loading || (page === totalPages && (!movies || movies.length === 0))}
+            onClick={() => isSignedIn && setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={!isSignedIn || loading || (page === totalPages && (!movies || movies.length === 0))}
           >
             Next
           </button>
