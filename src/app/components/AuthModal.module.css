@@ -1,4 +1,3 @@
-
 /* Overlay and Modal Box */
 .modalOverlay {
   position: fixed;
@@ -56,7 +55,6 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-fill-color: transparent;
 }
 
 /* Form and Inputs */
@@ -139,9 +137,6 @@
   width: 100%;
   box-shadow: 0 2px 8px rgba(255, 224, 102, 0.08);
 }
-.submitButton:hover {
-  background: #ffd43b;
-}
 
 /* Switch Mode (Login/Register) */
 .switchMode {
@@ -168,4 +163,23 @@
 .switchButton:hover {
   background: #ffe066;
   color: #18181b;
+}
+
+/* Media query for phone dimensions */
+@media (max-width: 600px) {
+  .modalBox {
+    min-width: 95vw;
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+    border-radius: 12px;
+  }
+  .title {
+    font-size: 1.3rem;
+  }
+  .form {
+    gap: 0.7rem;
+  }
+  .submitButton {
+    font-size: 1rem;
+    padding: 0.7rem 0;
+  }
 }
