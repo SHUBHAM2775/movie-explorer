@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect, useMemo } from "react";
 import { useSearch } from "./context/SearchContext";
 import MovieList from "./components/MovieList";
+import MovieCard from "./components/MovieCard";
 
 // Movie type definition for local use
 type Movie = {
@@ -181,38 +182,19 @@ function DefaultMovieTabs() {
     fetchMovies();
   }, [tab, page]);
 
-  const movieCards = useMemo(() => (
-    movies.map((movie) => (
-      <div className="w-56" key={movie.id}>
-        {movie.poster_path ? (
-          <Image
-            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-            alt={movie.title}
-            width={224}
-            height={320}
-            className="rounded-t-xl w-full h-80 object-cover"
-            priority={true}
-          />
-        ) : (
-          <div className="w-full h-80 bg-gray-700 flex items-center justify-center text-gray-400 rounded-t-xl">
-            No Image
-          </div>
-        )}
-        <div className="bg-[#23213A] p-4 rounded-b-xl">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-white font-bold">{movie.title}</span>
-            <span className="text-yellow-400 font-semibold text-sm flex items-center gap-1">
-              <svg width='16' height='16' fill='currentColor'><path d='M8 12.472l-4.472 2.35.855-4.99L1 6.763l5.014-.728L8 1.5l1.986 4.535L15 6.763l-3.383 3.07.855 4.99z'/></svg>{movie.vote_average}
-            </span>
-          </div>
-          <div className="text-gray-400 text-xs mb-2 flex items-center gap-2">
-            <svg width='14' height='14' fill='currentColor'><path d='M7 1a6 6 0 100 12A6 6 0 007 1zm0 10.8A4.8 4.8 0 117 2.2a4.8 4.8 0 010 9.6z'/><path d='M7 4.2a.7.7 0 01.7.7v2.1a.7.7 0 01-1.4 0V4.9A.7.7 0 017 4.2zm0 5.6a.7.7 0 100-1.4.7.7 0 000 1.4z'/></svg>{movie.release_date ? movie.release_date.slice(0, 4) : ""}
-          </div>
-          <p className="text-gray-300 text-sm line-clamp-3">{movie.overview}</p>
-        </div>
-      </div>
-    ))
-  ), [movies]);
+    const movieCards = useMemo(() => (
+      movies.map((movie) => (
+        <MovieCard
+          key={movie.id}
+          id={movie.id}
+          posterUrl={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined}
+          title={movie.title}
+          year={movie.release_date ? movie.release_date.slice(0, 4) : ""}
+          rating={movie.vote_average}
+          description={movie.overview}
+        />
+      ))
+    ), [movies]);
 
   return (
     <>
