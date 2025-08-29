@@ -1,5 +1,6 @@
 
 import { useState, useRef } from "react";
+import { useAuth } from "../hooks/useAuth";
 import { fetchTMDB } from '../lib/api';
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,6 +10,7 @@ type SearchBarProps = {
 };
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   type Movie = {
     id: number;
@@ -61,23 +63,30 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   };
 
   return (
-    <div className="relative w-full max-w-xl mx-auto mb-6">
+  <div className="relative w-full max-w-xl mx-auto mb-0 flex items-center">
       <form onSubmit={handleSubmit} className="flex items-center gap-2 w-full">
         <input
           type="text"
           value={query}
           onChange={handleChange}
-          placeholder="Search movies..."
-          className="px-4 py-2 rounded w-full bg-[#18122B] text-white border border-gray-700 focus:outline-none"
+          placeholder={user ? "Search movies..." : "Sign in to use search bar"}
+          className={`px-4 py-2 rounded w-full bg-[#18122B] text-white border border-gray-700 focus:outline-none ${!user ? 'cursor-not-allowed' : ''}`}
           autoComplete="off"
+          disabled={!user}
+          style={!user ? { pointerEvents: 'none' } : undefined}
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ${user ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+          disabled={!user}
+          title={!user ? 'Sign in to search movies' : undefined}
         >
           Search
         </button>
       </form>
+      {/* {!user && (
+        <div className="text-xs text-yellow-400 mt-2 text-center">Sign in to use search features.</div>
+      )} */}
       {showDropdown && results.length > 0 && (
         <ul className="absolute z-10 left-0 right-0 bg-[#18122B] border border-gray-700 rounded mt-1 max-h-64 overflow-y-auto shadow-lg">
           {results.map(movie => (

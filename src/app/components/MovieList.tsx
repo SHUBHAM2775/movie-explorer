@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchTMDB } from '../lib/api';
 import MovieCard from "./MovieCard";
+import { useAuth } from "../hooks/useAuth";
 import Image from "next/image";
 
 
@@ -36,6 +37,7 @@ type MovieListProps = {
 };
 
 export default function MovieList({ searchQuery }: MovieListProps) {
+  const { user } = useAuth();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -87,6 +89,7 @@ export default function MovieList({ searchQuery }: MovieListProps) {
   }, [searchQuery]);
 
   const handleCardClick = async (id: number) => {
+    if (!user) return;
     setModalOpen(true);
     setSelectedMovie(null);
     try {
@@ -110,7 +113,7 @@ export default function MovieList({ searchQuery }: MovieListProps) {
         onClick={() => handleCardClick(movie.id)}
       />
     ))
-  ), [movies]);
+  ), [movies, user]);
 
   return (
     <div className="flex flex-col items-center">
@@ -123,6 +126,9 @@ export default function MovieList({ searchQuery }: MovieListProps) {
           movieCards
         ) : (
           <div className="text-white">No movies found.</div>
+        )}
+        {!user && (
+          <div className="text-xs text-yellow-400 w-full text-center mt-2">Sign in to view movie details.</div>
         )}
       </div>
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-8 items-center justify-center w-full">

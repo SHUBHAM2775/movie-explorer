@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTheme } from "../context/ThemeContext";
 import { useFavorites } from "../hooks/useFavorites";
+import { useAuth } from "../hooks/useAuth";
 
 type MovieCardProps = {
   id: number;
@@ -18,8 +19,10 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
   const { theme } = useTheme();
   const router = useRouter();
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { user } = useAuth();
 
   const handleClick = () => {
+    if (!user) return;
     if (onClick) {
       onClick();
     } else {
@@ -28,6 +31,7 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!user) return;
     if (e.key === "Enter" || e.key === " ") {
       handleClick();
     }
@@ -35,6 +39,7 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!user) return;
     if (isFavorite(id)) {
       removeFavorite(id);
     } else {
@@ -51,6 +56,8 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
         aria-label={`View details for ${title}`}
         tabIndex={0}
         type="button"
+        disabled={!user}
+        title={!user ? 'Sign in to view details' : undefined}
       >
         {posterUrl ? (
           <Image src={posterUrl} alt={title} width={224} height={320} className="object-cover w-full h-full" />
@@ -67,6 +74,8 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
             aria-label={`View details for ${title}`}
             tabIndex={0}
             type="button"
+            disabled={!user}
+            title={!user ? 'Sign in to view details' : undefined}
           >
             {title}
           </button>
@@ -80,6 +89,8 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
             onClick={handleFavorite}
             tabIndex={0}
             type="button"
+            disabled={!user}
+            title={!user ? 'Sign in to manage favorites' : undefined}
           >
             <svg
               width="20"
@@ -96,6 +107,9 @@ export default function MovieCard({ id, posterUrl, title, year, rating, descript
           {year}
         </div>
         <p className="text-gray-300 text-sm line-clamp-3">{description}</p>
+        {!user && (
+          <div className="text-xs text-yellow-400 mt-2 text-center">Sign in to view details and manage favorites.</div>
+        )}
       </div>
     </div>
   );
