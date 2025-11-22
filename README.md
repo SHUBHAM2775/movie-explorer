@@ -12,6 +12,17 @@ Movie Explorer is a modern web application for discovering, searching, and manag
 - Responsive design for mobile and desktop
 - Light/Dark theme toggle
 
+## 📸 Screenshots
+
+<p align="center">
+  <img src="./public/screenshots/movie1.png" alt="Movie Explorer Screenshot 1" width="700" />
+</p>
+<br>
+<p align="center">
+  <img src="./public/screenshots/movie2.png" alt="Movie Explorer Screenshot 2" width="700" />
+</p>
+
+
 ## Tech Stack
 - Next.js (React framework)
 - TypeScript
